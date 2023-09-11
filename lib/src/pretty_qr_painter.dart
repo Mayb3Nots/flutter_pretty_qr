@@ -55,7 +55,7 @@ class PrettyQrCodePainter extends CustomPainter {
       var dst = Alignment.center.inscribe(Size(size.height / 4, size.height / 4),
           Rect.fromLTWH(size.width / 3, size.height / 3, size.height / 3, size.height / 3));
       final paint = Paint();
-      if (imageColor != null) paint.color = imageColor!;
+      if (imageColor != null) paint.colorFilter = ColorFilter.mode(imageColor!, BlendMode.srcIn);
       canvas.drawImageRect(image!, src, dst, paint);
     }
 
