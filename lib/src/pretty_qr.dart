@@ -28,6 +28,8 @@ class PrettyQr extends StatefulWidget {
 
   final ImageProvider? image;
 
+  final Color? imageColor;
+
   PrettyQr(
       {Key? key,
       this.size = 100,
@@ -36,6 +38,7 @@ class PrettyQr extends StatefulWidget {
       this.errorCorrectLevel = QrErrorCorrectLevel.M,
       this.roundEdges = false,
       this.typeNumber,
+      this.imageColor,
       this.image})
       : super(key: key);
 
@@ -79,6 +82,7 @@ class _PrettyQrState extends State<PrettyQr> {
                   child: CustomPaint(
                     size: Size(widget.size, widget.size),
                     painter: PrettyQrCodePainter(
+                        imageColor: widget.imageColor,
                         image: snapshot.data,
                         data: widget.data,
                         errorCorrectLevel: widget.errorCorrectLevel,

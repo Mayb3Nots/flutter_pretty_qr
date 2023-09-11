@@ -12,6 +12,7 @@ class PrettyQrCodePainter extends CustomPainter {
   late QrCode _qrCode;
   late QrImage _qrImage;
   int deletePixelCount = 0;
+  final Color? imageColor;
 
   PrettyQrCodePainter({
     required this.data,
@@ -20,6 +21,7 @@ class PrettyQrCodePainter extends CustomPainter {
     this.roundEdges = false,
     this.image,
     int? typeNumber,
+    this.imageColor,
   }) {
     if (typeNumber == null) {
       _qrCode = QrCode.fromData(
@@ -48,16 +50,13 @@ class PrettyQrCodePainter extends CustomPainter {
       var imageSize = Size(image!.width.toDouble(), image!.height.toDouble());
 
       var src = Alignment.center.inscribe(
-          imageSize,
-          Rect.fromLTWH(
-              0, 0, image!.width.toDouble(), image!.height.toDouble()));
+          imageSize, Rect.fromLTWH(0, 0, image!.width.toDouble(), image!.height.toDouble()));
 
-      var dst = Alignment.center.inscribe(
-          Size(size.height / 4, size.height / 4),
-          Rect.fromLTWH(size.width / 3, size.height / 3, size.height / 3,
-              size.height / 3));
-
-      canvas.drawImageRect(image!, src, dst, Paint());
+      var dst = Alignment.center.inscribe(Size(size.height / 4, size.height / 4),
+          Rect.fromLTWH(size.width / 3, size.height / 3, size.height / 3, size.height / 3));
+      final paint = Paint();
+      if (imageColor != null) paint.color = imageColor!;
+      canvas.drawImageRect(image!, src, dst, paint);
     }
 
     roundEdges ? _paintRound(canvas, size) : _paintDefault(canvas, size);
@@ -109,14 +108,11 @@ class PrettyQrCodePainter extends CustomPainter {
     for (int x = 0; x < _qrImage.moduleCount; x++) {
       for (int y = 0; y < _qrImage.moduleCount; y++) {
         if (matrix[y + 1]![x + 1]) {
-          final Rect squareRect =
-              Rect.fromLTWH(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+          final Rect squareRect = Rect.fromLTWH(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
 
-          _setShape(x + 1, y + 1, squareRect, _paint, matrix, canvas,
-              _qrImage.moduleCount);
+          _setShape(x + 1, y + 1, squareRect, _paint, matrix, canvas, _qrImage.moduleCount);
         } else {
-          _setShapeInner(
-              x + 1, y + 1, _paintBackground, matrix, canvas, pixelSize);
+          _setShapeInner(x + 1, y + 1, _paintBackground, matrix, canvas, pixelSize);
         }
       }
     }
@@ -138,18 +134,15 @@ class PrettyQrCodePainter extends CustomPainter {
           ..color = this.elementColor);
   }
 
-  void _setShapeInner(
-      int x, int y, Paint paint, List matrix, Canvas canvas, double pixelSize) {
+  void _setShapeInner(int x, int y, Paint paint, List matrix, Canvas canvas, double pixelSize) {
     double widthY = pixelSize * (y - 1);
     double heightX = pixelSize * (x - 1);
 
     //bottom right check
     if (matrix[y + 1][x] && matrix[y][x + 1] && matrix[y + 1][x + 1]) {
-      Offset p1 =
-          Offset(heightX + pixelSize - (0.25 * pixelSize), widthY + pixelSize);
+      Offset p1 = Offset(heightX + pixelSize - (0.25 * pixelSize), widthY + pixelSize);
       Offset p2 = Offset(heightX + pixelSize, widthY + pixelSize);
-      Offset p3 =
-          Offset(heightX + pixelSize, widthY + pixelSize - (0.25 * pixelSize));
+      Offset p3 = Offset(heightX + pixelSize, widthY + pixelSize - (0.25 * pixelSize));
 
       _drawCurve(p1, p2, p3, canvas);
     }
@@ -183,18 +176,14 @@ class PrettyQrCodePainter extends CustomPainter {
   }
 
   //Round the corners and paint it
-  void _setShape(int x, int y, Rect squareRect, Paint paint, List matrix,
-      Canvas canvas, int n) {
+  void _setShape(int x, int y, Rect squareRect, Paint paint, List matrix, Canvas canvas, int n) {
     bool bottomRight = false;
     bool bottomLeft = false;
     bool topRight = false;
     bool topLeft = false;
 
     //if it is dot (arount an empty place)
-    if (!matrix[y + 1][x] &&
-        !matrix[y][x + 1] &&
-        !matrix[y - 1][x] &&
-        !matrix[y][x - 1]) {
+    if (!matrix[y + 1][x] && !matrix[y][x + 1] && !matrix[y - 1][x] && !matrix[y][x - 1]) {
       canvas.drawRRect(
           RRect.fromRectAndCorners(squareRect,
               bottomRight: Radius.circular(2.5),
@@ -260,14 +249,12 @@ class PrettyQrCodePainter extends CustomPainter {
 
         if (_qrImage.isDark(y, x)) {
           canvas.drawRect(
-              Rect.fromLTWH(x * pixelSize, y * pixelSize, pixelSize, pixelSize),
-              _paint);
+              Rect.fromLTWH(x * pixelSize, y * pixelSize, pixelSize, pixelSize), _paint);
         }
       }
     }
   }
 
   @override
-  bool shouldRepaint(PrettyQrCodePainter oldDelegate) =>
-      oldDelegate.data != data;
+  bool shouldRepaint(PrettyQrCodePainter oldDelegate) => oldDelegate.data != data;
 }
